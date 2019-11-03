@@ -45,6 +45,7 @@ if(NOT LIBMGBA_ONLY)
 	set(ENABLE_SCRIPTING ON CACHE BOOL "Whether or not to enable scripting support")
 	set(BUILD_QT ON CACHE BOOL "Build Qt frontend")
 	set(BUILD_SDL ON CACHE BOOL "Build SDL frontend")
+	set(BUILD_SDL_LEGACY OFF CACHE BOOL "Build SDL legacy frontend")
 	set(BUILD_LIBRETRO OFF CACHE BOOL "Build libretro core")
 	if(APPLE)
 		set(BUILD_OPENEMU OFF CACHE BOOL "Build OpenEmu core")
@@ -684,7 +685,7 @@ elseif(BUILD_GLES2)
 	set(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS},libgles2")
 endif()
 
-if(WIN32 AND NOT SKIP_LIBRARY AND NOT USE_EPOXY)
+if(WIN32 AND NOT SKIP_LIBRARY AND NOT BUILD_SDL_LEGACY AND NOT USE_EPOXY)
     message(FATAL_ERROR "Windows requires epoxy module!")
 endif()
 
@@ -781,6 +782,10 @@ endif()
 
 if(DEFINED SWITCH)
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/platform/switch ${CMAKE_CURRENT_BINARY_DIR}/switch)
+endif()
+
+if(BUILD_SDL_LEGACY)
+	list(APPEND OS_DEFINES COLOR_16_BIT COLOR_5_6_5 IOAPI_NO_64)
 endif()
 
 # Binaries
@@ -880,6 +885,7 @@ endif()
 if(DISABLE_FRONTENDS)
 	set(BUILD_SDL OFF)
 	set(BUILD_QT OFF)
+	set(BUILD_SDL_LEGACY OFF)
 endif()
 
 if(BUILD_PYTHON)
@@ -921,6 +927,10 @@ endif()
 
 if(BUILD_QT)
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/platform/qt ${CMAKE_CURRENT_BINARY_DIR}/qt)
+endif()
+
+if(BUILD_SDL_LEGACY)
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/platform/sdl_legacy ${CMAKE_CURRENT_BINARY_DIR}/sdl_legacy)
 endif()
 
 if(BUILD_PERF)
